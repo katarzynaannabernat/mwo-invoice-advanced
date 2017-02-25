@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
 
+import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 
 import pl.edu.agh.mwo.invoice.Invoice;
@@ -98,11 +100,53 @@ public class InvoiceTest {
 		Invoice invoice = createEmptyInvoice();
 		invoice.addProduct(createTaxFreeProduct(), -1);
 	}
-
+	@Test
+	public void  testInvoiceHasNumberGratherThanZero(){
+		Invoice invoice = createEmptyInvoice();
+		Assert.assertThat(invoice.getNumber(), Matchers.greaterThanOrEqualTo(0));
+	}
+	@Test
+	public void testNextInvoiceHasSubsequentNumbers(){
+		Invoice invoice1 = createEmptyInvoice();
+		Invoice invoice2 = createEmptyInvoice();
+		Assert.assertEquals(1, invoice2.getNumber() - invoice1.getNumber());
+	}
 	private Invoice createEmptyInvoice() {
 		return new Invoice();
 	}
-
+	@Test
+	public void testPrintedInvoiceHasNumber(){
+		Invoice invoice = createEmptyInvoice();
+		String printed = invoice.printVersion();
+		String invoiceNumber = String.valueOf(invoice.getNumber());
+		Assert.assertThat(printed, Matchers.containsString(invoiceNumber));
+	}
+	@Test
+	public void testPrintedInvoiceHasProductName(){
+		Invoice invoice = createEmptyInvoice();
+		DairyProduct product1 =new DairyProduct("mleko", new BigDecimal("2.56"));
+		invoice.addProduct(product1);
+		String printed = invoice.printVersion();
+		Assert.assertThat(printed, Matchers.containsString("mleko"));		
+	}
+	@Test
+	public void testPrintedInvoiceHasProductType(){
+		Invoice invoice = createEmptyInvoice();
+		DairyProduct product1 =new DairyProduct("mleko", new BigDecimal("2.56"));
+		invoice.addProduct(product1);
+		String printed = invoice.printVersion();
+		Assert.assertThat(printed, Matchers.containsString("DairyProduct"));
+	}
+	@Test
+	public void testPrintedInvoiceHasProductTQuantity(){
+		Invoice invoice = createEmptyInvoice();
+		DairyProduct product =new DairyProduct("mleko", new BigDecimal("2.56"));
+		invoice.addProduct(product, 123);
+		String printed = invoice.printVersion();
+		Assert.assertThat(printed, Matchers.containsString("123"));
+	}
+	
+	
 	private Product createTaxFreeProduct() {
 		return new TaxFreeProduct(PRODUCT_1, new BigDecimal("199.99"));
 	}
